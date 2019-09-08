@@ -4,12 +4,13 @@ import pandas as pd
 from data_analyze import get_title
 from sklearn.linear_model import LogisticRegression
 from sklearn.cross_validation import  train_test_split
-import xgboost as xgb
+
 import numpy as np
 from sklearn.model_selection import StratifiedKFold
 from sklearn.model_selection import GridSearchCV
 from sklearn import  ensemble
 from sklearn.linear_model import LinearRegression
+from some_model import *
 
 #弃用：Cabin 填充：Age 用对应title的age均值填充 Embarked众数填充  ok
 #one hot:SEX Pclass  ； Embarked  ； title
@@ -49,40 +50,6 @@ def get_dummy(df):
     df = pd.get_dummies(df,prefix=l_dummy,columns=l_dummy)
     return df
 
-def add_kfold(train_model,train_model_Y,best_params):
-    skf=StratifiedKFold(n_splits=5,shuffle=True)
-    print best_params['C']
-    print best_params['max_iter']
-
-    max_score = 0
-    for train_index,vaild_index in skf.split(train_model,train_model_Y):
-        clf = LogisticRegression(penalty='l1', C=best_params['C'], max_iter=best_params['max_iter'], solver='liblinear', n_jobs=32)
-        x_train,y_train,x_valid,y_valid = train_model.iloc[train_index],train_model_Y.iloc[train_index],train_model.iloc[vaild_index],train_model_Y.iloc[vaild_index]
-        #x_train,y_train,x_valid,y_valid = train_model[train_index],train_model_Y[train_index],train_model[vaild_index],train_model_Y[vaild_index]
-        clf.fit(x_train,y_train)
-        s = clf.score(x_valid,y_valid) #内部调的acc_score
-        if s>max_score:
-            max_score=s
-            max_clf = clf
-    return max_clf,max_score
-
-def grid_search_lr(X,y,hyperparameter_grid,clf,gridsearch_params = {'cv':3,'scoring':'roc_auc'}):
-
-    gridparams = {'estimator' : clf,
-                  'param_grid' : hyperparameter_grid,
-                 }
-    gridparams.update(gridsearch_params)
-    grid_result = GridSearchCV(**gridparams).fit(X,np.squeeze(y))
-
-    print 'Best: {}'.format(grid_result.best_params_)
-    return grid_result
-
-def do_grid_search(train_model,train_model_Y):
-    clf = LogisticRegression(penalty='l1', C=1, max_iter=100, solver='liblinear', n_jobs=32)
-    c_list = np.arange(1,10,1)
-    max_iter_list = np.arange(100,500,50)
-    res = grid_search_lr(train_model,train_model_Y,{'C':c_list,'max_iter':max_iter_list},clf)
-    return res.best_params_
 
 def fill_missing_age(missing_age_train, missing_age_test):
     missing_age_train.drop(['Survived'],axis=1,inplace=True)
@@ -93,7 +60,7 @@ def fill_missing_age(missing_age_train, missing_age_test):
     missing_age_X_test = missing_age_test.drop(['Age'], axis=1)
     #模型1
     gbm_reg = ensemble.GradientBoostingRegressor(random_state=42)
-    gbm_reg_param_grid = {'n_estimators': [20], 'max_depth': [3],'learning_rate': [0.01], 'max_features': [18]}
+    gbm_reg_param_grid = {'n_estimators': [1000], 'max_depth': [3],'learning_rate': [0.01], 'max_features': [18]}
     gbm_reg_grid = GridSearchCV(gbm_reg, gbm_reg_param_grid, cv=10, n_jobs=25, verbose=1,  scoring='neg_mean_squared_error')
     gbm_reg_grid.fit(missing_age_X_train, missing_age_Y_train)
     #print('Age feature Best GB Params:' + str(gbm_reg_grid.best_params_))
@@ -129,15 +96,14 @@ def main():
     fare_fill(train_test) #测试集里fare有缺失，用对应pclass 的fare均值填充
 
     train_test.drop(['Name','Ticket','Cabin'],axis=1,inplace=True)
+    age_fill(train_test)  #Age 用对应title的均值填充
+
     train_test = get_dummy(train_test)
 
-    missing_age_train=train_test[train_test['Age'].notnull()]
-    missing_age_test =train_test[train_test['Age'].isnull()]
-
-    train_test.loc[train_test['Age'].isnull(),'Age'] = fill_missing_age(missing_age_train,missing_age_test)
-
-    #age_fill(train_test)  #Age 用对应title的均值填充
-    #TODO: 缺失Age通过预测填充
+    #通过预测得到的AGE 分数是：0.77511 先不用预测age了 就用title对应的均值吧。
+    #missing_age_train=train_test[train_test['Age'].notnull()]
+    #missing_age_test =train_test[train_test['Age'].isnull()]
+    #train_test.loc[train_test['Age'].isnull(),'Age'] = fill_missing_age(missing_age_train,missing_age_test)
 
     train_model = train_test[train_test['Survived'].notnull()]
     train_model.drop(['PassengerId'],axis=1,inplace=True)
@@ -152,22 +118,13 @@ def main():
     #feature_name=list(corrdf['Survived'].abs().sort_values(ascending=False)[:25].index)
     #train_model=train_model[feature_name]
 
+    #TODO: 因为data_analyze看一些组合特征效果应该不错比如pclass sex 等，所以做下特征衍生试试
 
-    #网格找C max_iter  C值搜出来的是2 max_inter 来回变 不过总的来看100较好
-    #best_params=do_grid_search(train_model,train_model_Y)
-    best_params = {'C': 2, 'max_iter': 100}
-    #train_X,test_X,train_y,test_y = train_test_split(train_model,train_model_Y,train_size=0.8)
-    max_clf,max_score = add_kfold(train_model,train_model_Y,best_params)  #尝试交叉验证
+    #LR model
+    #lr_model(train_model,train_model_Y,x,test_PassengerId)
 
-
-
-    print max_score
-    print "***************生成提交结果*****************"
-    y_pred=max_clf.predict(x)
-    y_pred= y_pred.astype(int)
-    result=pd.DataFrame({'PassengerId':test_PassengerId,'Survived':y_pred})
-    final_result = result.sort_values(by='PassengerId')
-    final_result.to_csv("./result1.csv",index=None)
+    #xgb model
+    run_xgb_model(train_model,train_model_Y,x,test_PassengerId)
 
 if __name__ == '__main__':
     main()
