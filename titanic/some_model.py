@@ -9,6 +9,8 @@ import xgboost as xgb
 from sklearn.model_selection import train_test_split
 from ks import ks
 from sklearn.metrics import *
+from sklearn import tree
+from sklearn import ensemble
 
 def add_kfold(train_model,train_model_Y,best_params):
     skf=StratifiedKFold(n_splits=5,shuffle=True)
@@ -83,10 +85,16 @@ def get_score_threshold(dic_ks):
 
 def run_xgb_model(train_model,train_model_y,test,test_pid): #0.755分
     xgb_test = xgb.DMatrix(test)
-    param=do_xgb_grid_search(train_model,train_model_y)
+    #param=do_xgb_grid_search(train_model,train_model_y)
+    param = {
+        'booster': 'gbtree',
+        'silent': 1,
+        'objective': 'binary:logistic',
+        'max_depth': 3,
+        'eval_metric': 'auc'
+        }
+
     plst = param.items()
-    print "*********************params**********************"
-    print plst
     skf=StratifiedKFold(n_splits=5,shuffle=True)
     max_ks = 0
     final_threshold = 0
@@ -95,7 +103,7 @@ def run_xgb_model(train_model,train_model_y,test,test_pid): #0.755分
         xgb_train = xgb.DMatrix(x_train,label=y_train)
         xgb_valid = xgb.DMatrix(x_valid,label=y_valid)
         evallist = [(xgb_valid,'eval'), (xgb_train,'train')]
-        clf=xgb.train(plst,xgb_train,100,evallist)
+        clf=xgb.train(plst,xgb_train,800,evallist)
         valid_pred = clf.predict(xgb_valid)
         dic_ks = ks(y_valid,valid_pred)
         threshold = get_score_threshold(dic_ks)
@@ -112,3 +120,62 @@ def run_xgb_model(train_model,train_model_y,test,test_pid): #0.755分
     result=pd.DataFrame({'PassengerId':test_pid,'Survived':test_survived})
     xgb_result=result.sort_values(by='PassengerId')
     xgb_result.to_csv("result_xgb.csv",index=None)
+
+def run_decision_tree(train_model,train_model_y):
+    X_train, X_valid, y_train, y_valid = train_test_split(train_model,train_model_y,train_size=0.8)
+    clf=tree.DecisionTreeClassifier(criterion="entropy")
+    clf.fit(X_train,y_train)
+    y_pred = clf.predict(X_valid)
+    print accuracy_score(y_valid,y_pred)
+
+def voting_model():
+    rf_est = ensemble.RandomForestClassifier(n_estimators = 750, criterion = 'gini', max_features = 'sqrt',
+                                             max_depth = 3, min_samples_split = 4, min_samples_leaf = 2,
+                                             n_jobs = 50, random_state = 42, verbose = 1)
+
+    gbm_est = ensemble.GradientBoostingClassifier(n_estimators=900, learning_rate=0.0008, loss='exponential',
+                                                  min_samples_split=3, min_samples_leaf=2, max_features='sqrt',
+                                                  max_depth=3, random_state=42, verbose=1)
+
+    et_est = ensemble.ExtraTreesClassifier(n_estimators=750, max_features='sqrt', max_depth=35, n_jobs=50,
+                                           criterion='entropy', random_state=42, verbose=1)
+
+    lr_est = LogisticRegression(penalty='l1', C=2, max_iter=100, solver='liblinear', n_jobs=32)
+
+    des_tree_est = tree.DecisionTreeClassifier(criterion="entropy")
+
+    voting_est = ensemble.VotingClassifier(estimators = [('rf', rf_est),('lr',lr_est),('gbm', gbm_est),('et', et_est),('ds',des_tree_est)],
+                                       voting = 'soft', weights = [3,4,5,2,2],
+                                       n_jobs = 50)
+    return voting_est
+
+def voting_model_cv(train_model,train_model_y,test,test_pid):
+    skf=StratifiedKFold(n_splits=5,shuffle=True)
+    for train_index,valid_index in skf.split(train_model,train_model_y):
+        x_train,y_train,x_valid,y_valid = train_model.iloc[train_index],train_model_y.iloc[train_index],train_model.iloc[valid_index],train_model_y.iloc[valid_index]
+        voting_est = voting_model()
+        voting_est.fit(x_train,y_train)
+        y_valid_pred = voting_est.predict(x_valid)
+        acc = accuracy_score(y_valid,y_valid_pred)
+        max_acc = 0
+        if acc > max_acc:
+            max_acc = acc
+            clf = voting_est
+    print u"*****************最优acc"
+    print max_acc
+    test_pred = clf.predict(test)
+    test_pred = test_pred.astype(int)
+    result = pd.DataFrame({'PassengerId': test_pid,'Survived': test_pred}).sort_values(by='PassengerId')
+    result.to_csv("./votingmodel.csv",index=None)
+
+def voting_no_cv_model(train_model,train_model_y,test,test_pid):
+    x_train,x_valid,y_train,y_valid = train_test_split(train_model,train_model_y,train_size=0.8)
+    voting_set = voting_model()
+    voting_set.fit(x_train,y_train)
+    y_valid_pred = voting_set.predict(x_valid)
+    acc = accuracy_score(y_valid,y_valid_pred)
+    print acc
+    test_pred = voting_set.predict(test)
+    test_pred = test_pred.astype(int)
+    result = pd.DataFrame({'PassengerId': test_pid,'Survived': test_pred}).sort_values(by='PassengerId')
+    result.to_csv("./votingmodelnocv.csv",index=None)

@@ -149,16 +149,14 @@ def main():
 
 
     tickets_analyze()  #ticket重复的是团体票
-
-
     plt.show()
+
 '''
 结论：
 Parch ： 0  1-3  >3 分级
 sibsp: 0  1-2  3-4  >4
 做组合特征 female+Sex
 由核密度图fare分级: <=10  <10-60  60-100 >=100
-
 '''
 
 if __name__ == '__main__':
