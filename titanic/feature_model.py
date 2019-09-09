@@ -156,7 +156,6 @@ def get_top_n_features(titanic_train_data_X, titanic_train_data_Y, top_n_feature
     feature_imp_sorted_rf = pd.DataFrame({'feature': list(titanic_train_data_X), 'importance': rf_grid.best_estimator_.feature_importances_}).sort_values('importance', ascending=False)
     features_top_n_rf = feature_imp_sorted_rf.head(top_n_features)['feature']
 
-
     # AdaBoost
     ada_est = ensemble.AdaBoostClassifier(random_state=42)
     ada_param_grid = {'n_estimators': [500], 'learning_rate': [0.5, 0.6]}
@@ -174,8 +173,6 @@ def get_top_n_features(titanic_train_data_X, titanic_train_data_Y, top_n_feature
     #排序
     feature_imp_sorted_et = pd.DataFrame({'feature': list(titanic_train_data_X), 'importance': et_grid.best_estimator_.feature_importances_}).sort_values('importance', ascending=False)
     features_top_n_et = feature_imp_sorted_et.head(top_n_features)['feature']
-    print('Sample 25 Features from ET Classifier:')
-    print(str(features_top_n_et[:25]))
 
     # 将三个模型挑选出来的前features_top_n_et合并
     features_top_n = pd.concat([features_top_n_rf, features_top_n_ada, features_top_n_et], ignore_index=True).drop_duplicates()
@@ -213,6 +210,7 @@ def main():
     # train_test.loc[train_test['Age'].isnull(),'Age'] = fill_missing_age(missing_age_train,missing_age_test)
 
     train_model = train_test[train_test['Survived'].notnull()]
+
     train_model.drop(['PassengerId'],axis=1,inplace=True)
     train_model_Y = train_model.pop('Survived')
 
@@ -239,9 +237,11 @@ def main():
 
     #fea_weight(train_model,train_model_Y) #看下特征重要程度2 done
 
-    features_top_n = get_top_n_features(train_model, train_model_Y, 220)
+    features_top_n = get_top_n_features(train_model, train_model_Y, 100)
     train_model = train_model[features_top_n]
     test_x = test_x[features_top_n]
+    with open("./feature_in_model","a") as f:
+        f.write(str(list(train_model.columns)))
 
     #lr_model(train_model,train_model_Y,x,test_PassengerId)
     #run_xgb_model(train_model,train_model_Y,x,test_PassengerId)
