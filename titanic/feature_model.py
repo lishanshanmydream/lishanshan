@@ -237,7 +237,7 @@ def main():
 
     #fea_weight(train_model,train_model_Y) #看下特征重要程度2 done
 
-    features_top_n = get_top_n_features(train_model, train_model_Y, 100)
+    features_top_n = get_top_n_features(train_model, train_model_Y, 250)
     train_model = train_model[features_top_n]
     test_x = test_x[features_top_n]
     with open("./feature_in_model","a") as f:
