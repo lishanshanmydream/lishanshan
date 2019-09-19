@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 
-import pandas as pd
 import numpy as np
+import math
 
 KS_PART = 10
 
@@ -14,7 +14,7 @@ def _get_cut_pos(cut_num, vec, head_pos, tail_pos):
     else:
         return _get_cut_pos(cut_num, vec, head_pos, mid_pos-1)
 
-def ks(y_true, y_prob, ks_part=KS_PART):
+def ks(y_true, y_prob, ks_part=KS_PART, dec_pos=3):
     data = np.vstack((y_true, y_prob)).T
     sort_ind = np.argsort(data[:, 1])
     data = data[sort_ind]
@@ -43,22 +43,38 @@ def ks(y_true, y_prob, ks_part=KS_PART):
     bad_num = np.array(bad_num)
 
     good_num = order_num - bad_num
-    order_ratio = np.array([round(x, 3) for x in order_num * 100 / float(length)])
-    overdue_ratio = np.array([round(x, 3) for x in bad_num * 100 / [float(x) for x in order_num]])
-    bad_ratio = np.array([round(sum(bad_num[:i+1])*100/float(sum_bad), 3) for i in range(len(bad_num))])
-    good_ratio = np.array([round(sum(good_num[:i+1])*100/float(sum_good), 3) for i in range(len(good_num))])
-    ks_list = abs(good_ratio - bad_ratio)
+    order_ratio = np.array([x for x in order_num * 100 / float(length)])
+    overdue_ratio = np.array([x for x in bad_num * 100 / [float(x) for x in order_num]])
+    bad_ratio_sum = np.array([sum(bad_num[:i+1])*100/float(sum_bad) for i in range(len(bad_num))])
+    good_ratio_sum = np.array([sum(good_num[:i+1])*100/float(sum_good) for i in range(len(good_num))])
+    ks_list = abs(good_ratio_sum - bad_ratio_sum)
     ks = max(ks_list)
 
+    bad_ratio = bad_num / float(sum_bad)
+    good_ratio = good_num / float(sum_good)
+    woe = map(lambda x: 0 if x == 0 else math.log(x), bad_ratio / good_ratio)
+    iv_list = (bad_ratio - good_ratio) * woe
+    iv = sum(iv_list)
+
+    #print cut_list
+
     try:
-        span_list = ['[%.3f,%.3f]' % (min(data[:, 1]), round(cut_list[1], 3))]
+        if dec_pos == 0:
+            span_list = ['[%d,%d]' % (int(round(min(data[:, 1]), dec_pos)), int(round(cut_list[1], dec_pos)))]
+        else:
+            span_list = ['[%s,%s]' % (round(min(data[:, 1]), dec_pos), round(cut_list[1], dec_pos))]
         if len(cut_list) > 2:
             for i in range(2, len(cut_list)):
-                span_list.append('(%.3f,%.3f]' % (round(cut_list[i-1], 3), round(cut_list[i], 3)))
+                if dec_pos == 0:
+                    span_list.append('(%d,%d]' % (int(round(cut_list[i-1], dec_pos)), int(round(cut_list[i], dec_pos))))
+                else:
+                    span_list.append('(%s,%s]' % (round(cut_list[i-1], dec_pos), round(cut_list[i], dec_pos)))
+
     except:
         span_list = ['0']
 
     dic_ks = {
+            'iv': iv,
             'ks': ks,
             'span_list': span_list,
             'order_num': order_num,
@@ -66,21 +82,26 @@ def ks(y_true, y_prob, ks_part=KS_PART):
             'good_num': good_num,
             'order_ratio': order_ratio,
             'overdue_ratio': overdue_ratio,
-            'bad_ratio': bad_ratio,
-            'good_ratio': good_ratio,
-            'ks_list': ks_list
+            'bad_ratio': bad_ratio_sum,
+            'good_ratio': good_ratio_sum,
+            'ks_list': ks_list,
+            'woe': woe,
+            'iv_list': iv_list
             }
 
     return dic_ks
 
 def print_ks(ks_info):
-    print 'ks = %.1f%%' % ks_info['ks']
-    print '\t'.join(['seq', '评分区间', '订单数', '逾期数', '正常用户数', '百分比', '逾期率', '累计坏账户占比', '累计好账户占比', 'KS统计量'])
+    print 'iv\t%.4f' % ks_info['iv']
+    print 'ks\t%.2f%%' % ks_info['ks']
+    print '\t'.join(['seq', '评分区间', '订单数', '逾期数', '正常用户数', '百分比', '逾期率', '累计坏账户占比', '累计好账户占比', 'KS统计量', 'WOE', 'IV统计量'])
     for i in range(len(ks_info['ks_list'])):
-        print '%d\t%s\t%d\t%d\t%d\t%.2f%%\t%.2f%%\t%.2f%%\t%.2f%%\t%.2f%%' % (i+1, ks_info['span_list'][i], ks_info['order_num'][i], ks_info['bad_num'][i], ks_info['good_num'][i], ks_info['order_ratio'][i], ks_info['overdue_ratio'][i], ks_info['bad_ratio'][i], ks_info['good_ratio'][i], ks_info['ks_list'][i])
+        print '%d\t%s\t%d\t%d\t%d\t%.2f%%\t%.2f%%\t%.2f%%\t%.2f%%\t%.2f%%\t%.4f\t%.4f' % (i+1, ks_info['span_list'][i], ks_info['order_num'][i], ks_info['bad_num'][i], ks_info['good_num'][i], ks_info['order_ratio'][i], ks_info['overdue_ratio'][i], ks_info['bad_ratio'][i], ks_info['good_ratio'][i], ks_info['ks_list'][i], ks_info['woe'][i], ks_info['iv_list'][i])
 
+def write_ks(ks_info, fout):
+    fout.write('iv\t%.4f\n' % ks_info['iv'])
+    fout.write('ks\t%.2f%%\n' % ks_info['ks'])
+    fout.write('\t'.join(['seq', '评分区间', '订单数', '逾期数', '正常用户数', '百分比', '逾期率', '累计坏账户占比', '累计好账户占比', 'KS统计量', 'WOE', 'IV统计量'])+'\n')
+    for i in range(len(ks_info['ks_list'])):
+        fout.write('%d\t%s\t%d\t%d\t%d\t%.2f%%\t%.2f%%\t%.2f%%\t%.2f%%\t%.2f%%\t%.4f\t%.4f\n' % (i+1, ks_info['span_list'][i], ks_info['order_num'][i], ks_info['bad_num'][i], ks_info['good_num'][i], ks_info['order_ratio'][i], ks_info['overdue_ratio'][i], ks_info['bad_ratio'][i], ks_info['good_ratio'][i], ks_info['ks_list'][i], ks_info['woe'][i], ks_info['iv_list'][i]))
 
-if __name__ == '__main__':
-    df_test = pd.read_csv('./model/prob_test', sep='\t')
-    dic_ks = ks(np.array(df_test['label']), np.array(df_test['prob']))
-    print_ks(dic_ks)

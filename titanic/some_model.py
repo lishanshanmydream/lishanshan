@@ -85,7 +85,7 @@ def get_score_threshold(dic_ks):
 
 def run_xgb_model(train_model,train_model_y,test,test_pid): #0.755分
     xgb_test = xgb.DMatrix(test)
-    #param=do_xgb_grid_search(train_model,train_model_y)
+    param=do_xgb_grid_search(train_model,train_model_y)
     param = {
         'booster': 'gbtree',
         'silent': 1,

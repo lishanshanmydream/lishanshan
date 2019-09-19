@@ -40,6 +40,8 @@ def fare_fill(data):
 def get_dummy(df):
     l_dummy = ['title']
     for col in df.columns:
+        if col == 'Survived':
+            continue
         if len(set(df[col]))<=8:
             l_dummy.append(col)
     df = pd.get_dummies(df,prefix=l_dummy,columns=l_dummy)
@@ -113,7 +115,7 @@ def fea_weight(train_x,train_y):
     bst=xgb.train(params,dtrain,num_boost_round=100,verbose_eval=False)
     fweight = bst.get_score(importance_type='weight')
     feature_weight = pd.DataFrame(fweight.items(),columns=['feature','weight']).sort_values(by='weight',ascending=False)
-    feature_weight.to_csv("./feature_weight.csv",index=None)
+
     return feature_weight
 
 def scaler(df_tr,df_te):
@@ -235,19 +237,18 @@ def main():
     #train_model=train_model[feature_name]
 
 
-    #fea_weight(train_model,train_model_Y) #看下特征重要程度2 done
+    fea_weight(train_model,train_model_Y) #看下特征重要程度2 done
 
     features_top_n = get_top_n_features(train_model, train_model_Y, 250)
     train_model = train_model[features_top_n]
     test_x = test_x[features_top_n]
-    with open("./feature_in_model","a") as f:
-        f.write(str(list(train_model.columns)))
 
-    #lr_model(train_model,train_model_Y,x,test_PassengerId)
-    #run_xgb_model(train_model,train_model_Y,x,test_PassengerId)
+
+    lr_model(train_model,train_model_Y,test_x,test_PassengerId)
+    run_xgb_model(train_model,train_model_Y,x,test_PassengerId)
     #run_decision_tree(train_model,train_model_Y)
     #融合模型
-    voting_model_cv(train_model,train_model_Y,test_x,test_PassengerId)
+    #voting_model_cv(train_model,train_model_Y,test_x,test_PassengerId)
 
 if __name__ == '__main__':
     main()
