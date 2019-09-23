@@ -339,7 +339,7 @@ class LgbmModel(object):
         return lgb.Dataset(x,label=y,free_raw_data=False,feature_name=self.fea_col,categorical_feature=self.cate_col)
 
 if __name__ == '__main__':
-    ty = 'kaggle'
+    ty = 'bayes&train&test'
 
     lgbm = LgbmModel()
 
@@ -379,7 +379,7 @@ if __name__ == '__main__':
             if len(train_acc_list)>3 and len(set(train_acc_list[-3:])) == 1:
                 break   #如果训练acc 连续3个循环都没有提升跳出循环
 
-    if ty == 'kaggle': #这咋这么奇怪，上面直接赋值下来的参数 同样的训练怎么效果不一样那... 调参的时候稍微好0.0x个点
+    if ty == 'kaggle': 
         params={
                 'num_leaves': 3,
                 'colsample_bytree': 1,
