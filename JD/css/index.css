@@ -1,0 +1,447 @@
+.nav{
+    height: 30px;
+    background: #e3e4e5;
+    border-bottom: 1px solid #ddd;
+}
+
+/* margin是指从自身边框到另一个容器边框之间的距离，就是容器外距离。 */
+/* Padding属性用来描述BOX的边框和内容之间插入多少空间 */
+
+.nav-box{
+    /* 让固定宽度居中 */
+    margin: 0px auto; 
+
+    width: 1190px;
+    text-align: right;
+    /* 导航栏文本增加右对齐 */
+}
+
+.nav-box ul li {
+    /* 将导航栏的各link横着排 */
+    display: inline-block;
+    padding: 0px;
+    font-size: 12px;
+    height: 30px;
+    line-height: 30px;
+    position: relative;
+}
+
+.nav-box ul li a {
+    color: #999999;
+    
+    /* 下边线没有 */
+    text-decoration: none;
+    
+}
+
+/* 每个文字后面增加小竖线 排除掉最后一个竖线*/
+.nav-box ul li:not(:last-child):after{
+    content: "";
+    width: 1px;
+    height: 14px;
+    background: #cccccc;
+    position: absolute;
+    top: 8px;
+    right: -3px;
+    display: block;
+}
+
+/* 鼠标点上去显示红色 */
+.nav-box ul li a:hover{
+    color: crimson;
+}
+
+/* 整个头部的区域 */
+.header-box {
+    height: 140px;
+    background: white;
+}
+
+/* 头部不包括两侧留白的区域 */
+.header {
+    width: 1190px;
+     /* 弹性布局 */
+    display: flex;
+    /* 在中间 */
+    margin: 0px auto;
+    /* 间距 */
+    padding: 10px 0px;
+}
+
+.logo-box {
+    width: 190px;
+    height: 120px;
+}
+
+.search-box {
+    width: 790px;
+    padding: 0px 10px;
+    /* 上内边距和下内边距是 0px
+    右内边距和做内边距是10px */
+}
+
+.header .search-bar {
+    padding: 20px 0px 0px 50px; 
+    /* 上 右 下 左 内边距 */
+    display: flex;
+}
+
+.search-bar input {
+    /* 边框 */
+    border: 1px solid red;
+
+    width: 500px;
+    height: 30px;
+    padding: 2px 10px;
+    outline: none;
+    /* 去掉浏览器默认边框  */
+}
+
+.search-bar .search-btn {
+    width: 50px;
+    height: 30px;
+    border: solid red;
+    background: red;
+    /* 鼠标放上去是小手 */
+    cursor: pointer;
+
+    /* 放大镜居中 height=line-height 文字会上下居中，这里的搜索字体图标 是类似文字的*/
+    line-height: 30px; 
+    /* 左右居中 */
+    text-align: center;
+}
+
+/* iconfont.cn 可以找到字体图标
+   选择要的图标 加入购物车 下载代码
+   将 eot svg ttf woff woff2 拷贝到项目中 （字体代码）
+   css下创建font文件夹,将文件移动进去
+   将iconfont.css 中内容 拷贝到 common.css中，并修改引用的路径 增加./font/
+
+*/
+.search-bar .iconfont-search {
+    color: white;
+    /* 调整字体图标的字体大小 由于是字体图标，放大或缩小不会影响清晰度*/
+    font-size: 22px;
+    /* 加粗 */
+    font-weight: bold;
+}
+
+.search-bar .iconfont-cart {
+    font-size: 18px;
+    /* 加粗 */
+    font-weight: bold;
+}
+
+.search-bar .cart-btn {
+    /* 购物车 */
+    /* 左边距 20 */
+    margin: 0px 0px 0px 20px;
+    border: 1px solid red;
+
+    width: 100px;
+    height: 30px;
+    line-height: 30px; 
+    /* 设置行间的距离（行高） */
+
+    text-align: center;
+    color: red;
+    font-size: 12px;
+    cursor: pointer;
+
+
+}
+.header .recommend {
+    font-size: 12px;
+    padding: 5px 0px 20px 50px;
+
+}
+
+.header .recommend a {
+    color: #999999;
+}
+
+.search-box ul li {
+    display: inline-block;
+    padding: 0px 10px;
+}
+
+
+.search-box ul li a {
+    color: #333333;
+    /* 去掉默认下划线 */
+    text-decoration: none;
+}
+
+/* 整个内容的框 */
+.content .wrapper {
+    /* 居中 */
+    margin: 0px auto;
+
+    width: 1190px;
+    padding: 10px ;
+    /* 4个部分弹性布局 */
+    display: flex;
+}
+
+.menu-box {
+    width: 190px;
+    background: #ffffff;
+
+    /* 二级菜单悬浮效果，底层relative 上层absolute */
+    position: relative;
+
+    padding: 10px 0px;
+    margin-left: 10px;
+}
+
+.menu-box ul li {
+    height: 25px;
+    line-height: 25px;
+    padding:  0px 12px;
+
+    /* 防止字太长被挤成两行 */
+    overflow: hidden;
+}
+
+/* 鼠标放上有一个灰色的框 */
+.menu-box ul li:hover{
+    background: #d9d9d9;
+}
+
+/* hover的时候显示 子菜单 */
+/* .menu-box ul li:hover .sub-menu{
+    display: block;
+} */
+
+/* 通过js实现 不用上面的了。 但js也需要样式，放到激活的li上*/
+.menu-box ul li .active{
+    display: block;
+
+    /* 我们控制active的显示 */
+}
+
+.menu-box ul li a {
+    color: #333333;
+    text-decoration: none;
+}
+
+.menu-box ul li a:hover {
+    color: red;
+}
+
+.menu-box .sub-menu {
+    /* 固定的 */
+    position: absolute;
+    top:0px;
+
+    /* 由于menu-box 宽度是190 所以二级菜单浮出来后应该是190的位置 */
+    left:190px;
+    background: white;
+
+    /* 用于堆叠效果，由于放在上面所以给10  */
+    z-index: 10;
+    width: 900px;
+    padding: 20px;
+    font-size: 12px;
+    /* 阴影效果 */
+    box-shadow: 2px 0px 5px rgba(0, 0, 0, 0.3);
+    
+    /* 最开始是隐藏的 */
+    display : none;
+}
+
+.sub-menu .left-box {
+    /* 设置浮动  */
+    float: left;
+    /* 控制最大宽度不超过700 */
+    max-width: 700px;
+
+}
+
+.sub-menu  .right-box {
+    /* 往右浮动 */
+    float: right;
+    max-width: 160px;
+}
+
+.sub-menu .pic-box {
+    /* 没两个直接右一个间距 */
+    margin: 0px 0px 10px 0px; 
+}
+
+.sub-menu .pic-box:last-child {
+    /* 没两个直接右一个间距,但最后一个没有了 */
+    margin: 0px;
+}
+
+.sub-menu .menu-title {
+    /* 所有外边距设置 */
+    margin: 0px 0px 10px 0px; 
+
+}
+
+.sub-menu .menu-title .item {
+    /* 每一个都是内连的 */
+    display: inline-block;
+
+    /* 黑色背景颜色 */
+    background: black;
+
+    /* 撑起来 左右给8 */
+    padding: 0px 8px;
+
+    /* 相邻的给间距 */
+    margin: 0px 10px 0px 0px;
+
+    /* 字体颜色 */
+    color: white;
+ 
+}
+
+.sub-menu .menu-title .item:hover{
+    background: red;
+}
+
+/* 弹性布局 */
+/* 这里 ul li dl 都不带. 为什么我也不知道 先记住吧 */
+.sub-menu dl {
+    /* 让dt 和 dd 在同一行 */
+    display: flex;
+
+}
+
+.sub-menu dt {
+    font-weight: bold;
+    /* 固定宽度 */
+    width: 60px;
+
+    /* 右对齐 */
+    text-align: right;
+
+    /* 弹性布局 某个元素是否被压缩，0不压缩。 为避免dt中的 家用小店 左侧的被压缩 让右侧的扩展*/
+    flex-shrink: 0; 
+}
+
+.sub-menu dd a {
+    /* 设置间距 */
+    padding : 4px 8px 4px 8px;
+    white-space: nowrap;
+}
+
+.slider-box {
+    /* 右侧间距是10 */
+    margin-right: 10px;
+
+}
+
+.slider-box .slider {
+    width: 590px;
+    height: 470px;
+    /* 相对的定位 方便里面ul定位 相当于5个li的容器*/
+    position: relative; 
+
+    /* 图片不能溢出 */
+    overflow: hidden;
+}
+
+.slider-box .slider ul {
+    /* 外面的slider是relative，里面的就需要绝对布局 */
+    position: absolute;
+    top : 0px;
+    /* left: -590px; /*tips*/
+    /* width: 500%; 5倍的容器的宽度  */
+    height: 100%;
+
+}
+
+.slider-box .slider ul li {
+    /* 里面有5个li  让其浮动 在同一行展开*/
+    float: left;
+}
+
+.slider-box .left-box {
+    background: rgba(0, 0, 0, 0.2); /*透明度0.2*/
+    position: absolute;
+    
+    top:45%;
+    width: 50px;
+    height: 50px;
+    color: white;
+
+    /* 弹性布局 */
+    display: flex;
+    /* 水平居中 */
+    justify-content: center;
+    /* 竖直居中 */
+    align-items: center;
+
+    /* 鼠标移动样式是小手 */
+    cursor: pointer;
+}
+
+.slider-box .right-box {
+    background: rgba(0, 0, 0, 0.2); /*透明度0.2*/
+    position: absolute;
+    
+    top:45%;
+    width: 50px;
+    height: 50px;
+    right: 0px; /*靠右侧*/
+    color: white;
+
+    /* 弹性布局 */
+    display: flex;
+    /* 水平居中 */
+    justify-content: center;
+    /* 竖直居中 */
+    align-items: center;
+
+    /* 鼠标移动样式是小手 */
+    cursor: pointer;
+}
+
+.slider-box .right-box ,.slider-box .left-box span {
+    font-size: 24px;
+}
+
+.slider-box .index-box {
+    position: absolute;
+    bottom: 3%;
+    left : 10%;
+
+}
+
+/* >代表index-bos下的直接子元素 */
+.slider-box .index-box > ol {
+    height: 14px;
+
+    /* 弹性布局 */
+    display: flex;
+
+    /* 评分空间 */
+    justify-content: space-evenly;
+    /* 竖直居中 */
+    align-items: center;
+    background: rgb(0, 0, 0,0.6);
+
+}
+
+.slider-box .index-box > ol > li {
+    /* 首先是正方形 */
+    width: 10px;
+    height: 10px;
+
+    /* 弄成小圆点 */
+    border-radius: 50%;
+
+    background: white;
+
+    /* 不想要list前面的圆点 */
+    list-style: none; 
+    cursor: pointer;
+}
+
+/* 小圆点鼠标点上的效果 */
+.slider-box .index-box > ol > li.active {
+    background: red;
+}

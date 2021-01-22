@@ -1,0 +1,30 @@
+body {
+    font-size: 14px;
+    background: rgb(248, 246, 246);
+}
+
+/* 定义字体 */
+@font-face {font-family: "iconfont";
+    src: url('./font/iconfont.eot?t=1610711111289'); /* IE9 */
+    src: url('./font/iconfont.eot?t=1610711111289#iefix') format('embedded-opentype'), /* IE6-IE8 */
+    url('data:application/x-font-woff2;charset=utf-8;base64,d09GMgABAAAAAANQAAsAAAAAB0QAAAMBAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHEIGVgCDBgqCKIIaATYCJAMMCwgABCAFhG0HPBtmBsgOJQmXwABgAAVgPHyN/e/c3X2q7YvhiaGJd0gmlkhiHUolQyk0bXqo085y0WVSgckpPYPrSAFW5MD0PBHjsHy3Z5gA5/zPNfVq4vlta5dqiuZOPNob4HhAA40KWouu9YB4w9iVFzGfQNOsCsIeeWwmhCmMZoG4ajIoEJYyKTWZoS5US/oW8R6C1dML9Ah45z8//sPGCCOpZEbbfecH9dDzW/52VVweWG6hi4BiPAfYIDI2AIU4Xuo6SAyDG4iaijZILQRVRUhjeQIBfLlqrK70j5eIKiO9DdbAUOK3bHMIfl8dIIEMqiB8CHgGaWNqitRuzwXFR6prj+9evuuYdOLMirPx/TwRnybS5kUdiVyMWns/de6uW1Lkyzvp84X9O3YkS0LrFkTGlSdPZh16XDGrZ/atx9LTp7OfPZv1+PHMAkmgmZP8dWRZ9Jvnmc83RC99U/lmB7D2M5c2Q/K7eee2dJZ+fPcre/Ek/xZyRuqWlAy5owAynpd+39TW05TU0FPeA48faujjXqSJC/M/HTv9++S5kmnpFRr6sA9pZu7evVrHPOGhT3CED/u889Bh9MCbcsjrg6WMhvkU+gXIe9GXv0CNrzXT+JKYLf/rrQK+FR/W+aaivbF+ju7gnStaFhVVZZhzkeW2XHdnmxMJEpqqwZvOhqG3/Y2T1umEukkMSc0MZHXLaKFtgIqWTVBVtx2a1tMNbhlhRFEaWGcNgNB3EZKuz5D1TaCF9gYqpr5DVT9EaNofozFbVoVJ2s2Iwokej/uxSXXYqWXlUpA5nRg0q8KSKp8+mzC3yYNrq2qyER2xEzZGB7fHUMc5xZQ5bFgGixGr1YGdzGEmKq8ycu5sq66mZUeqUh02kOzGEAqO0MPG+WEmKgc76pbnpNzjpyMMNFYKVkOqiM9GMG6m6rFaVWpaoDq9vRXpWg5x8zCow3EURjEONpgMahFWVg6Ys7yWGaHiqhh7+J3aVJulaFt91fxG2/OtgCZjmxwpchSNMwrjlVSzWkPuEIWpRgAAAAA=') format('woff2'),
+    url('./font/iconfont.woff?t=1610711111289') format('woff'),
+    url('./font/iconfont.ttf?t=1610711111289') format('truetype'), /* chrome, firefox, opera, Safari, Android, iOS 4.2+ */
+    url('./font/iconfont.svg?t=1610711111289#iconfont') format('svg'); /* iOS 4.1- */
+  }
+  
+  /* 使用字体 */
+  .iconfont {
+    font-family: "iconfont" !important;
+    font-size: 16px;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .clearfix::after {
+    content: "";
+    clear: both;
+    display: block;
+    height: 0px;
+  }

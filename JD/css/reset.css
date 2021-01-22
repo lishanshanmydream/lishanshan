@@ -1,0 +1,14 @@
+html,body,ul,ol,li{
+    margin: 0px;
+    padding: 0px;
+}
+
+li {
+    list-style: none;
+}
+
+/* 浏览器默认的样式 reset掉 */
+dl , dt , dd {
+    margin: 0px;
+    padding: 0px;
+}
